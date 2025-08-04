@@ -61,6 +61,13 @@ class _GroceryListPageState extends State<GroceryListPage> {
           children: [
             GroceryInputForm(onNewItem: _addItem),
             const SizedBox(height: 20),
+            Text(
+              'Total: \$${_totalCost.toStringAsFixed(2)}',
+              style: const TextStyle(
+                fontSize: 18,
+                fontWeight: FontWeight.bold,
+              ),
+            ),
             Expanded(
               child: ListView.builder(
                 itemCount: _items.length,
@@ -77,13 +84,6 @@ class _GroceryListPageState extends State<GroceryListPage> {
                     ),
                   );
                 },
-              ),
-            ),
-            Text(
-              'Total: \$${_totalCost.toStringAsFixed(2)}',
-              style: const TextStyle(
-                fontSize: 18,
-                fontWeight: FontWeight.bold,
               ),
             ),
           ],
@@ -121,6 +121,7 @@ class _GroceryInputFormState extends State<GroceryInputForm> {
   final _nameController = TextEditingController();
   final _priceController = TextEditingController();
   final _quantityController = TextEditingController();
+  final _nameFocusNode = FocusNode();
   final _priceFocusNode = FocusNode();
   final _quantityFocusNode = FocusNode();
 
@@ -129,9 +130,26 @@ class _GroceryInputFormState extends State<GroceryInputForm> {
     _nameController.dispose();
     _priceController.dispose();
     _quantityController.dispose();
+    _nameFocusNode.dispose();
     _priceFocusNode.dispose();
     _quantityFocusNode.dispose();
     super.dispose();
+  }
+
+  void _submitForm() {
+    if (_formKey.currentState!.validate()) {
+    final name = _nameController.text;
+    final price = double.parse(_priceController.text);
+    final quantity = double.parse(_quantityController.text);
+
+    widget.onNewItem(GroceryItem(name, price, quantity));
+
+    _nameController.clear();
+    _priceController.clear();
+    _quantityController.clear();
+
+    _nameFocusNode.requestFocus();
+  }
   }
 
   @override
@@ -158,6 +176,7 @@ class _GroceryInputFormState extends State<GroceryInputForm> {
               onFieldSubmitted: (_) {
                 FocusScope.of(context).requestFocus(_priceFocusNode);
               },
+              focusNode: _nameFocusNode,
             ),
             TextFormField(
               controller: _priceController,
@@ -199,21 +218,10 @@ class _GroceryInputFormState extends State<GroceryInputForm> {
               },
               focusNode: _quantityFocusNode,
               textInputAction: TextInputAction.done,
+              onFieldSubmitted: (_) => _submitForm(),
             ),
             ElevatedButton(
-              onPressed: () {
-                if (_formKey.currentState!.validate()) {
-                  final name = _nameController.text;
-                  final price = double.parse(_priceController.text);
-                  final quantity = double.parse(_quantityController.text);
-
-                  widget.onNewItem(GroceryItem(name, price, quantity));
-
-                  _nameController.clear();
-                  _priceController.clear();
-                  _quantityController.clear();
-                }
-              },
+              onPressed: _submitForm,
               child: const Text('Add Item'),
             ),
           ]
