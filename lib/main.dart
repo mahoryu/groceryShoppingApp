@@ -4,6 +4,7 @@ void main() {
   runApp(const GroceryApp());
 }
 
+
 class GroceryApp extends StatelessWidget {
   const GroceryApp({super.key});
 
@@ -17,34 +18,91 @@ class GroceryApp extends StatelessWidget {
         ),
         useMaterial3: true,
       ),
-      home: const GroceryHomePage(title: 'Grocery Cost Tracker'),
+      home: const GroceryListPage(title: 'Grocery Cost Tracker'),
     );
   }
 }
 
-class GroceryHomePage extends StatefulWidget {
-  const GroceryHomePage({super.key, required this.title});
+
+class GroceryListPage extends StatefulWidget {
+  const GroceryListPage({super.key, required this.title});
   final String title;
 
   @override
-  State<GroceryHomePage> createState() => _GroceryHomePageState();
+  State<GroceryListPage> createState() => _GroceryListPageState();
 }
 
-class _GroceryHomePageState extends State<GroceryHomePage> {
+
+class _GroceryListPageState extends State<GroceryListPage> {
+  final List<GroceryItem> _items = [];
+
+  void _addItem(GroceryItem item) {
+    setState(() {
+      _items.add(item);
+    });
+  }
+
+  void _removeItem(int index) {
+    setState(() {
+      _items.removeAt(index);
+    });
+  }
+
+  double get _totalCost {
+    return _items.fold(0, (sum, item) => sum + item.price * item.quantity);
+  }
+
   @override
   Widget build(BuildContext context) {
-    return Scaffold();
+    return Scaffold(
+      appBar: AppBar(title: const Text('Grocery Tracker')),
+      body: Padding(
+        padding: const EdgeInsets.all(16.0),
+        child: Column(
+          children: [
+            GroceryInputForm(onNewItem: _addItem),
+            const SizedBox(height: 20),
+            Expanded(
+              child: ListView.builder(
+                itemCount: _items.length,
+                itemBuilder: (context, index) {
+                  final item = _items[index];
+                  return ListTile(
+                    title: Text(item.name),
+                    subtitle: Text(
+                      '${item.quantity} x \$${item.price.toStringAsFixed(2)}',
+                    ),
+                    trailing: IconButton(
+                      icon:const Icon(Icons.delete),
+                      onPressed: () => _removeItem(index),
+                    ),
+                  );
+                },
+              ),
+            ),
+            Text(
+              'Total: \$${_totalCost.toStringAsFixed(2)}',
+              style: const TextStyle(
+                fontSize: 18,
+                fontWeight: FontWeight.bold,
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
   }
-  List<GroceryItem> items = [];
 }
+
 
 class GroceryItem {
   String name;
-  double pricePerUnit;
+  double price;
   int quantity;
 
-  GroceryItem(this.name, this.pricePerUnit, this.quantity);
+  GroceryItem(this.name, this.price, this.quantity);
 }
+
 
 class GroceryInputForm extends StatefulWidget {
   final Function(GroceryItem) onNewItem;
@@ -57,6 +115,7 @@ class GroceryInputForm extends StatefulWidget {
   @override
   State<GroceryInputForm> createState() => _GroceryInputFormState();
 }
+
 
 class _GroceryInputFormState extends State<GroceryInputForm> {
   final _formKey = GlobalKey<FormState>();
@@ -147,8 +206,4 @@ class _GroceryInputFormState extends State<GroceryInputForm> {
     );
     // return Container();
   }
-}
-
-class GroceryListPage extends StatefulWidget {
-  
 }
