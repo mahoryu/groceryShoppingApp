@@ -56,8 +56,7 @@ class _GroceryListPageState extends State<GroceryListPage> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(title: const Text('Grocery Tracker')),
-      body: Padding(
-        padding: const EdgeInsets.all(16.0),
+      body: SafeArea(
         child: Column(
           children: [
             GroceryInputForm(onNewItem: _addItem),
@@ -98,7 +97,7 @@ class _GroceryListPageState extends State<GroceryListPage> {
 class GroceryItem {
   String name;
   double price;
-  int quantity;
+  double quantity;
 
   GroceryItem(this.name, this.price, this.quantity);
 }
@@ -154,6 +153,7 @@ class _GroceryInputFormState extends State<GroceryInputForm> {
             ),
             TextFormField(
               controller: _priceController,
+              keyboardType: TextInputType.numberWithOptions(decimal: true),
               decoration: const InputDecoration(
                 labelText: 'Price per Unit',
               ),
@@ -170,6 +170,7 @@ class _GroceryInputFormState extends State<GroceryInputForm> {
             ),
             TextFormField(
               controller: _quantityController,
+              keyboardType: TextInputType.numberWithOptions(decimal: true),
               decoration: const InputDecoration(
                 labelText: 'Quantity',
               ),
@@ -177,7 +178,7 @@ class _GroceryInputFormState extends State<GroceryInputForm> {
                 if (value == null || value.isEmpty) {
                   return 'Please enter the number of units';
                 }
-                final number = int.tryParse(value);
+                final number = double.tryParse(value);
                 if (number == null || number <= 0) {
                   return 'Enter a valid number';
                 }
@@ -189,7 +190,7 @@ class _GroceryInputFormState extends State<GroceryInputForm> {
                 if (_formKey.currentState!.validate()) {
                   final name = _nameController.text;
                   final price = double.parse(_priceController.text);
-                  final quantity = int.parse(_quantityController.text);
+                  final quantity = double.parse(_quantityController.text);
 
                   widget.onNewItem(GroceryItem(name, price, quantity));
 
