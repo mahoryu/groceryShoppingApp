@@ -121,12 +121,16 @@ class _GroceryInputFormState extends State<GroceryInputForm> {
   final _nameController = TextEditingController();
   final _priceController = TextEditingController();
   final _quantityController = TextEditingController();
+  final _priceFocusNode = FocusNode();
+  final _quantityFocusNode = FocusNode();
 
   @override
   void dispose() {
     _nameController.dispose();
     _priceController.dispose();
     _quantityController.dispose();
+    _priceFocusNode.dispose();
+    _quantityFocusNode.dispose();
     super.dispose();
   }
 
@@ -150,6 +154,10 @@ class _GroceryInputFormState extends State<GroceryInputForm> {
                 }
                 return null;
               },
+              textInputAction: TextInputAction.next,
+              onFieldSubmitted: (_) {
+                FocusScope.of(context).requestFocus(_priceFocusNode);
+              },
             ),
             TextFormField(
               controller: _priceController,
@@ -166,6 +174,11 @@ class _GroceryInputFormState extends State<GroceryInputForm> {
                   return 'Enter a valid number';
                 }
                 return null;
+              },
+              focusNode: _priceFocusNode,
+              textInputAction: TextInputAction.next,
+              onFieldSubmitted: (_) {
+                FocusScope.of(context).requestFocus(_quantityFocusNode);
               },
             ),
             TextFormField(
@@ -184,6 +197,8 @@ class _GroceryInputFormState extends State<GroceryInputForm> {
                 }
                 return null;
               },
+              focusNode: _quantityFocusNode,
+              textInputAction: TextInputAction.done,
             ),
             ElevatedButton(
               onPressed: () {
